@@ -1,11 +1,11 @@
+# Forçamos o uso da versão alpine para garantir que o 'apk' exista
 FROM n8nio/n8n:latest-alpine
 
 USER root
 
-# Instala Python e dependências de compilação necessárias para Matplotlib no Alpine
+# Instala Python e dependências para gráficos/PDF
 RUN apk add --update --no-cache \
     python3 \
-    python3-dev \
     py3-pip \
     build-base \
     freetype-dev \
@@ -13,16 +13,16 @@ RUN apk add --update --no-cache \
     openblas-dev \
     libstdc++
 
-# Cria e configura o ambiente virtual
+# Cria um ambiente virtual para evitar erros de "externally managed environment"
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Instala as bibliotecas Python
+# Instala as bibliotecas necessárias
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir requests fpdf2 matplotlib
 
-# Garante que o usuário do n8n possa acessar o ambiente virtual
+# Permissões para o usuário padrão do n8n
 RUN chown -R node:node /opt/venv
 
 USER node
