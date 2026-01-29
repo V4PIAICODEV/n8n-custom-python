@@ -1,28 +1,28 @@
-FROM n8nio/n8n:latest
+FROM n8nio/n8n:latest-alpine
 
 USER root
 
-# Instala Python e dependências de sistema para Debian
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Instala Python e dependências de compilação necessárias para Matplotlib no Alpine
+RUN apk add --update --no-cache \
     python3 \
-    python3-pip \
-    python3-venv \
-    build-essential \
-    libfreetype6-dev \
+    python3-dev \
+    py3-pip \
+    build-base \
+    freetype-dev \
     libpng-dev \
-    libopenblas-dev \
-    && rm -rf /var/lib/apt/lists/*
+    openblas-dev \
+    libstdc++
 
-# Cria ambiente virtual
+# Cria e configura o ambiente virtual
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Instala bibliotecas
+# Instala as bibliotecas Python
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir --default-timeout=100 requests fpdf2 matplotlib
+RUN pip install --no-cache-dir requests fpdf2 matplotlib
 
-# Dá permissão para o usuário node
+# Garante que o usuário do n8n possa acessar o ambiente virtual
 RUN chown -R node:node /opt/venv
 
 USER node
